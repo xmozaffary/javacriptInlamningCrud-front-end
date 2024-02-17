@@ -1,7 +1,7 @@
-const allPlayersTBody = document.querySelector('#allPlayers tbody');
-const searchPlayer = document.getElementById('searchPlayer');
-const btnAdd = document.getElementById('btnAdd');
-const closeDialog = document.getElementById('closeDialog');
+const allPlayersTBody = document.querySelector("#allPlayers tbody");
+const searchPlayer = document.getElementById("searchPlayer");
+const btnAdd = document.getElementById("btnAdd");
+const closeDialog = document.getElementById("closeDialog");
 
 function Player(id, name, jersey, team, position) {
   this.id = id;
@@ -20,13 +20,13 @@ function Player(id, name, jersey, team, position) {
 }
 
 async function fetchPlayers() {
-  return await (await fetch('http://localhost:3000/players')).json();
+  return await (await fetch("http://localhost:3000/players")).json();
 }
 
 let players = await fetchPlayers();
 console.log(players);
 
-searchPlayer.addEventListener('input', function () {
+searchPlayer.addEventListener("input", function () {
   const searchFor = searchPlayer.value.toLowerCase();
   for (let i = 0; i < players.length; i++) {
     // TODO add a matches function
@@ -45,11 +45,11 @@ const createTableTdOrTh = function (elementType, innerText) {
   return element;
 };
 
-const playerName = document.getElementById('playerName');
-const playerJersey = document.getElementById('jersey');
-const playerPosition = document.getElementById('position');
-const playerTeam = document.getElementById('team');
-const playerDelete = document.getElementById('delete');
+const playerName = document.getElementById("playerName");
+const playerJersey = document.getElementById("jersey");
+const playerPosition = document.getElementById("position");
+const playerTeam = document.getElementById("team");
+const playerDelete = document.getElementById("delete");
 
 let editingPlayer = null;
 
@@ -64,39 +64,42 @@ const onClickPlayer = function (event) {
   editingPlayer = player;
   console.log(editingPlayer.id);
 
-  MicroModal.show('modal-1');
+  MicroModal.show("modal-1");
 };
 
-closeDialog.addEventListener('click', async (ev) => {
+closeDialog.addEventListener("click", async (ev) => {
   ev.preventDefault();
-  let url = '';
-  let method = '';
+  let url = "";
+  let method = "";
   console.log(url);
   var o = {
     name: playerName.value,
-    jersey: jersey.value,
-    position: position.value,
-    team: team.value,
+    jersey: playerJersey.value,
+    position: playerPosition.value,
+    team: playerTeam.value,
   };
   if (editingPlayer != null) {
     o.id = editingPlayer.id;
     console.log(o.id);
-    url = 'http://localhost:3000/players/' + o.id;
-    method = 'PUT';
+    url = "http://localhost:3000/players/" + o.id;
+    method = "PUT";
   } else {
-    url = 'http://localhost:3000/players';
-    method = 'POST';
+    url = "http://localhost:3000/players";
+    method = "POST";
   }
-  console.log(playerDelete.value);
-  if ((playerDelete.value = true)) {
+
+  console.log(playerDelete.checked);
+  if (playerDelete.checked) {
     o.id = editingPlayer.id;
-    url = 'http://localhost:3000/players/' + o.id;
-    method = 'DELETE';
+    url = "http://localhost:3000/players/" + o.id;
+    method = "DELETE";
+  } else {
+    console.log("not id");
   }
   let response = await fetch(url, {
     headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
+      Accept: "application/json",
+      "Content-Type": "application/json",
     },
     method: method,
     body: JSON.stringify(o),
@@ -106,41 +109,41 @@ closeDialog.addEventListener('click', async (ev) => {
 
   players = await fetchPlayers();
   updateTable();
-  MicroModal.close('modal-1');
+  MicroModal.close("modal-1");
 });
 
-btnAdd.addEventListener('click', () => {
-  playerName.value = '';
+btnAdd.addEventListener("click", () => {
+  playerName.value = "";
   jersey.value = 0;
-  position.value = '';
-  team.value = '';
+  position.value = "";
+  team.value = "";
   editingPlayer = null;
 
-  MicroModal.show('modal-1');
+  MicroModal.show("modal-1");
 });
 
 const updateTable = function () {
-  allPlayersTBody.innerHTML = '';
+  allPlayersTBody.innerHTML = "";
 
   for (let i = 0; i < players.length; i++) {
     if (players[i].visible == false) {
       continue;
     }
-    let tr = document.createElement('tr');
+    let tr = document.createElement("tr");
 
-    tr.appendChild(createTableTdOrTh('th', players[i].name));
-    tr.appendChild(createTableTdOrTh('td', players[i].jersey));
-    tr.appendChild(createTableTdOrTh('td', players[i].position));
-    tr.appendChild(createTableTdOrTh('td', players[i].team));
+    tr.appendChild(createTableTdOrTh("th", players[i].name));
+    tr.appendChild(createTableTdOrTh("td", players[i].jersey));
+    tr.appendChild(createTableTdOrTh("td", players[i].position));
+    tr.appendChild(createTableTdOrTh("td", players[i].team));
 
-    let td = document.createElement('td');
-    let btn = document.createElement('button');
-    btn.textContent = 'EDIT';
+    let td = document.createElement("td");
+    let btn = document.createElement("button");
+    btn.textContent = "EDIT";
     btn.dataset.playersId = players[i].id;
     td.appendChild(btn);
     tr.appendChild(td);
 
-    btn.addEventListener('click', onClickPlayer);
+    btn.addEventListener("click", onClickPlayer);
 
     allPlayersTBody.appendChild(tr);
   }
@@ -152,9 +155,9 @@ MicroModal.init({
   onShow: (modal) => console.info(`${modal.id} is shown`), // [1]
   onClose: (modal) => console.info(`${modal.id} is hidden`), // [2]
 
-  openTrigger: 'data-custom-open', // [3]
-  closeTrigger: 'data-custom-close', // [4]
-  openClass: 'is-open', // [5]
+  openTrigger: "data-custom-open", // [3]
+  closeTrigger: "data-custom-close", // [4]
+  openClass: "is-open", // [5]
   disableScroll: true, // [6]
   disableFocus: false, // [7]
   awaitOpenAnimation: false, // [8]
