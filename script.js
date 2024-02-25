@@ -81,22 +81,22 @@ closeDialog.addEventListener("click", async (ev) => {
   if (editingPlayer != null) {
     o.id = editingPlayer.id;
     console.log(o.id);
-    url = "http://localhost:3000/players/" + o.id;
+    url = "http://localhost:3000/editPlayers/" + o.id;
     method = "PUT";
   } else {
-    url = "http://localhost:3000/players";
+    url = "http://localhost:3000/addPlayers";
     method = "POST";
   }
 
   console.log(playerDelete.checked);
   if (playerDelete.checked) {
     o.id = editingPlayer.id;
-    url = "http://localhost:3000/players/" + o.id;
+    url = "http://localhost:3000/deletePlayers/" + o.id;
     method = "DELETE";
   } else {
     console.log("not id");
   }
-  let response = await fetch(url, {
+  await fetch(url, {
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
@@ -104,8 +104,6 @@ closeDialog.addEventListener("click", async (ev) => {
     method: method,
     body: JSON.stringify(o),
   });
-
-  //let json = await response.json();
 
   players = await fetchPlayers();
   updateTable();
