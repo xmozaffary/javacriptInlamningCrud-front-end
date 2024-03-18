@@ -1,43 +1,54 @@
 const allPlayersTBody = document.querySelector("#allPlayers tbody");
 const searchPlayer = document.getElementById("searchPlayer");
+const from = document.getElementById("form");
 const btnAdd = document.getElementById("btnAdd");
 const closeDialog = document.getElementById("closeDialog");
+const getAllSortLinks = document.getElementsByClassName("bi");
 
-function Player(id, name, jersey, team, position) {
-  this.id = id;
-  this.name = name;
-  this.jersey = jersey;
-  this.team = team;
-  this.position = position;
-  this.visible = true;
-  this.matches = function (searchFor) {
-    return (
-      this.name.toLowerCase().includes(searchFor) ||
-      this.position.toLowerCase().includes(searchFor) ||
-      this.team.toLowerCase().includes(searchFor)
-    );
-  };
+let currentSortCol = "";
+let currentSortOrder = "";
+let currentPageNumber = 1;
+let currentPageSize = 5;
+let currentQ = "";
+
+for (let i = 0; i < getAllSortLinks.length; i++) {
+  const link = getAllSortLinks[i];
+  link.addEventListener("click", () => {
+    currentSortCol = link.dataset.sortcol;
+    currentSortOrder = link.dataset.sortorder;
+    console.log(currentSortCol, currentSortOrder);
+    updateTable();
+  });
 }
 
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const searchPlayer = document.getElementById("searchPlayer").value;
+  currentQ = searchPlayer;
+  console.log(currentQ);
+  updateTable();
+});
+
 async function fetchPlayers() {
-  return await (await fetch("http://localhost:3000/players")).json();
+  let offset = (currentPageNumber - 1) * currentPageSize;
+  let url =
+    "http://localhost:3000/players?sortCol=" +
+    currentSortCol +
+    "&sortOrder=" +
+    currentSortOrder +
+    "&q=" +
+    currentQ +
+    "&limit=" +
+    currentPageSize +
+    "&offset=" +
+    offset;
+  const response = await fetch(url);
+  const players = await response.json();
+  return players;
 }
 
 let players = await fetchPlayers();
 console.log(players);
-
-searchPlayer.addEventListener("input", function () {
-  const searchFor = searchPlayer.value.toLowerCase();
-  for (let i = 0; i < players.length; i++) {
-    // TODO add a matches function
-    if (players[i].matches(searchFor)) {
-      players[i].visible = true;
-    } else {
-      players[i].visible = false;
-    }
-  }
-  updateTable();
-});
 
 const createTableTdOrTh = function (elementType, innerText) {
   let element = document.createElement(elementType);
@@ -120,8 +131,11 @@ btnAdd.addEventListener("click", () => {
   MicroModal.show("modal-1");
 });
 
-const updateTable = function () {
+const updateTable = async function () {
   allPlayersTBody.innerHTML = "";
+  let players = await fetchPlayers();
+  console.log(currentQ);
+  console.log(players);
 
   for (let i = 0; i < players.length; i++) {
     if (players[i].visible == false) {
