@@ -4,11 +4,12 @@ const from = document.getElementById("form");
 const btnAdd = document.getElementById("btnAdd");
 const closeDialog = document.getElementById("closeDialog");
 const getAllSortLinks = document.getElementsByClassName("bi");
+const pager = document.getElementById("pager");
 
 let currentSortCol = "";
 let currentSortOrder = "";
 let currentPageNumber = 1;
-let currentPageSize = 5;
+let currentPageSize = 20;
 let currentQ = "";
 
 for (let i = 0; i < getAllSortLinks.length; i++) {
@@ -16,7 +17,6 @@ for (let i = 0; i < getAllSortLinks.length; i++) {
   link.addEventListener("click", () => {
     currentSortCol = link.dataset.sortcol;
     currentSortOrder = link.dataset.sortorder;
-    console.log(currentSortCol, currentSortOrder);
     updateTable();
   });
 }
@@ -25,7 +25,6 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
   const searchPlayer = document.getElementById("searchPlayer").value;
   currentQ = searchPlayer;
-  console.log(currentQ);
   updateTable();
 });
 
@@ -47,9 +46,8 @@ async function fetchPlayers() {
   return players;
 }
 
-let players = await fetchPlayers();
-console.log(players);
-
+let playersObj = await fetchPlayers();
+let players = playersObj.result;
 const createTableTdOrTh = function (elementType, innerText) {
   let element = document.createElement(elementType);
   element.textContent = innerText;
@@ -73,7 +71,6 @@ const onClickPlayer = function (event) {
   playerPosition.value = player.position;
   playerTeam.value = player.team;
   editingPlayer = player;
-  console.log(editingPlayer.id);
 
   MicroModal.show("modal-1");
 };
@@ -82,30 +79,25 @@ closeDialog.addEventListener("click", async (ev) => {
   ev.preventDefault();
   let url = "";
   let method = "";
-  console.log(url);
-  var o = {
+  var newPlayer = {
     name: playerName.value,
     jersey: playerJersey.value,
     position: playerPosition.value,
     team: playerTeam.value,
   };
   if (editingPlayer != null) {
-    o.id = editingPlayer.id;
-    console.log(o.id);
-    url = "http://localhost:3000/editPlayers/" + o.id;
+    newPlayer.id = editingPlayer.id;
+    url = "http://localhost:3000/editPlayers/" + newPlayer.id;
     method = "PUT";
   } else {
     url = "http://localhost:3000/addPlayers";
     method = "POST";
   }
 
-  console.log(playerDelete.checked);
   if (playerDelete.checked) {
-    o.id = editingPlayer.id;
-    url = "http://localhost:3000/deletePlayers/" + o.id;
+    newPlayer.id = editingPlayer.id;
+    url = "http://localhost:3000/deletePlayers/" + newPlayer.id;
     method = "DELETE";
-  } else {
-    console.log("not id");
   }
   await fetch(url, {
     headers: {
@@ -113,7 +105,7 @@ closeDialog.addEventListener("click", async (ev) => {
       "Content-Type": "application/json",
     },
     method: method,
-    body: JSON.stringify(o),
+    body: JSON.stringify(newPlayer),
   });
 
   players = await fetchPlayers();
@@ -131,16 +123,34 @@ btnAdd.addEventListener("click", () => {
   MicroModal.show("modal-1");
 });
 
+const createPager = (count, pageNumber, pageSize) => {
+  pager.innerHTML = "";
+  let totalPages = Math.ceil(count / pageSize);
+  for (let i = 1; i <= totalPages; i++) {
+    const li = document.createElement("li");
+    li.classList.add("pageItem");
+    if (i == pageNumber) {
+      li.classList.add("active");
+    }
+    const a = document.createElement("a");
+    a.href = "#";
+    a.innerText = i;
+    a.classList.add("pageLink");
+    li.appendChild(a);
+    a.addEventListener("click", () => {
+      currentPageNumber = i;
+      updateTable();
+    });
+    pager.appendChild(li);
+  }
+};
+
 const updateTable = async function () {
   allPlayersTBody.innerHTML = "";
-  let players = await fetchPlayers();
-  console.log(currentQ);
-  console.log(players);
+  let playersObj = await fetchPlayers();
+  let players = playersObj.result;
 
   for (let i = 0; i < players.length; i++) {
-    if (players[i].visible == false) {
-      continue;
-    }
     let tr = document.createElement("tr");
 
     tr.appendChild(createTableTdOrTh("th", players[i].name));
@@ -159,6 +169,7 @@ const updateTable = async function () {
 
     allPlayersTBody.appendChild(tr);
   }
+  createPager(playersObj.total, currentPageNumber, currentPageSize);
 };
 
 updateTable();
