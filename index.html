@@ -37,6 +37,7 @@
             id="searchPlayer"
             name="search"
             placeholder="Search"
+            maxlength="25"
           />
         </form>
         <!-- tabel head -->
@@ -134,7 +135,7 @@
             </header>
             <main class="modal__content" id="modal-1-content">
               <p>
-                <label>Name</label>
+                <label>Names <span class="requiredInput">*</span></label>
                 <input
                   type="text"
                   name="playerName"
@@ -142,8 +143,9 @@
                   placeholder="Player name"
                   aria-label="Player name"
                   required
+                  maxlength="25"
                 />
-                <label>Jersey</label>
+                <label>Jersey <span class="requiredInput">*</span></label>
                 <input
                   type="number"
                   name="jersey"
@@ -151,8 +153,9 @@
                   placeholder=""
                   aria-label="Jersey"
                   required
+                  maxlength="20"
                 />
-                <label>team</label>
+                <label>team <span class="requiredInput">*</span></label>
                 <input
                   type="text"
                   name="team"
@@ -160,14 +163,16 @@
                   placeholder="team"
                   aria-label="ream"
                   required
+                  maxlength="20"
                 />
-                <label>Position</label>
+                <label>Position <span class="requiredInput">*</span></label>
                 <select
                   name="position"
                   id="position"
                   placeholder=""
                   aria-label="position"
                   required
+                  maxlength="20"
                 >
                   <option>Goalie</option>
                   <option>Defence</option>
@@ -177,6 +182,9 @@
                   <input type="checkbox" name="delete" id="delete" />
                   <label style="color: black">Delete player</label>
                 </select>
+              </p>
+              <p id="errorMessage" style="display: none" class="errorMessage">
+                Please fill in all required fields (*)
               </p>
             </main>
             <footer class="modal__footer">

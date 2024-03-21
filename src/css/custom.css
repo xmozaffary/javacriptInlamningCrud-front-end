@@ -660,3 +660,12 @@
   padding: 0.5rem;
   color: white;
 }
+
+
+.requiredInput{
+  color: red;
+}
+
+.errorMessage{
+  color: red;
+}

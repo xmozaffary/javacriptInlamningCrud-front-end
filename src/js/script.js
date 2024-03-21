@@ -4,6 +4,12 @@ const btnAdd = document.getElementById("btnAdd");
 const closeDialog = document.getElementById("closeDialog");
 const getAllSortLinks = document.getElementsByClassName("bi");
 const pager = document.getElementById("pager");
+const playerName = document.getElementById("playerName");
+const playerJersey = document.getElementById("jersey");
+const playerPosition = document.getElementById("position");
+const playerTeam = document.getElementById("team");
+const playerDelete = document.getElementById("delete");
+const errorMessage = document.getElementById("errorMessage");
 
 let currentSortCol = "";
 let currentSortOrder = "";
@@ -39,6 +45,7 @@ const updateQuery = debounce((query) => {
 searchPlayer.addEventListener("input", (e) => {
   updateQuery(e.target.value);
 });
+
 async function fetchPlayers() {
   let offset = (currentPageNumber - 1) * currentPageSize;
   let url =
@@ -64,12 +71,6 @@ const createTableTdOrTh = function (elementType, innerText) {
   element.textContent = innerText;
   return element;
 };
-
-const playerName = document.getElementById("playerName");
-const playerJersey = document.getElementById("jersey");
-const playerPosition = document.getElementById("position");
-const playerTeam = document.getElementById("team");
-const playerDelete = document.getElementById("delete");
 
 let editingPlayer = null;
 
@@ -97,17 +98,45 @@ closeDialog.addEventListener("click", async (ev) => {
     team: playerTeam.value,
   };
   if (editingPlayer != null) {
-    newPlayer.id = editingPlayer.id;
-    url = "http://localhost:3000/editPlayers/" + newPlayer.id;
-    method = "PUT";
+    if (
+      playerName.value === "" ||
+      playerName.value.length < 3 ||
+      playerJersey.value < 0 ||
+      playerJersey.value.length > 3 ||
+      playerPosition.value === "" ||
+      playerPosition.value.length < 3 ||
+      playerTeam.value === "" ||
+      playerTeam.value.length < 3
+    ) {
+      errorMessage.style.display = "block";
+      return;
+    } else {
+      newPlayer.id = editingPlayer.id;
+      url = "http://localhost:3000/editPlayers/" + newPlayer.id;
+      method = "PUT";
+    }
   } else {
-    url = "http://localhost:3000/addPlayers";
-    method = "POST";
+    if (
+      playerName.value === "" ||
+      playerName.value.length < 3 ||
+      playerJersey.value < 0 ||
+      playerJersey.value.length > 3 ||
+      playerPosition.value === "" ||
+      playerPosition.value.length < 3 ||
+      playerTeam.value === "" ||
+      playerTeam.value.length < 3
+    ) {
+      errorMessage.style.display = "block";
+      return;
+    } else {
+      url = "http://localhost:3000/addPlayers";
+      method = "POST";
+    }
   }
 
   if (playerDelete.checked) {
     newPlayer.id = editingPlayer.id;
-    url = "http://localhost:3000/deletePlayers/" + newPlayer.id;
+    url = "http://localhost:3000/deletePlayer/" + newPlayer.id;
     method = "DELETE";
   }
   await fetch(url, {
@@ -119,8 +148,11 @@ closeDialog.addEventListener("click", async (ev) => {
     body: JSON.stringify(newPlayer),
   });
 
-  players = await fetchPlayers();
+  let playersObj = await fetchPlayers();
+  players = playersObj.result;
   updateTable();
+  errorMessage.style.display = "none";
+  playerDelete.checked = false;
   MicroModal.close("modal-1");
 });
 
@@ -131,6 +163,7 @@ btnAdd.addEventListener("click", () => {
   team.value = "";
   editingPlayer = null;
 
+  errorMessage.style.display = "none";
   MicroModal.show("modal-1");
 });
 
