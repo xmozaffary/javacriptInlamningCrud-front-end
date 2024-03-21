@@ -1,6 +1,5 @@
 const allPlayersTBody = document.querySelector("#allPlayers tbody");
 const searchPlayer = document.getElementById("searchPlayer");
-const from = document.getElementById("form");
 const btnAdd = document.getElementById("btnAdd");
 const closeDialog = document.getElementById("closeDialog");
 const getAllSortLinks = document.getElementsByClassName("bi");
@@ -9,7 +8,7 @@ const pager = document.getElementById("pager");
 let currentSortCol = "";
 let currentSortOrder = "";
 let currentPageNumber = 1;
-let currentPageSize = 20;
+let currentPageSize = 10;
 let currentQ = "";
 
 for (let i = 0; i < getAllSortLinks.length; i++) {
@@ -21,13 +20,25 @@ for (let i = 0; i < getAllSortLinks.length; i++) {
   });
 }
 
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const searchPlayer = document.getElementById("searchPlayer").value;
-  currentQ = searchPlayer;
-  updateTable();
-});
+const debounce = (cb, delay = 250) => {
+  let timeout;
 
+  return (...args) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      cb(...args);
+    }, delay);
+  };
+};
+
+const updateQuery = debounce((query) => {
+  currentQ = query;
+  updateTable();
+}, 500);
+
+searchPlayer.addEventListener("input", (e) => {
+  updateQuery(e.target.value);
+});
 async function fetchPlayers() {
   let offset = (currentPageNumber - 1) * currentPageSize;
   let url =
